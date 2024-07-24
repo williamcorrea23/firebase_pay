@@ -2,13 +2,13 @@ const prices = {};
 
 // Replace with your Firebase project config.
 const firebaseConfig = {
-  apiKey: 'AIzaSyAEGmffBNUsVrdVS_iyiI4eUMOWWp4Q5dI',
-  authDomain: 'stripe-subs-ext.firebaseapp.com',
-  databaseURL: 'https://stripe-subs-ext.firebaseio.com',
-  projectId: 'stripe-subs-ext',
-  storageBucket: 'stripe-subs-ext.appspot.com',
-  messagingSenderId: '955066520266',
-  appId: '1:955066520266:web:ec7135a76fea7a1bce9a33',
+  apiKey: "AIzaSyDwNC4QWaBQYqvayl98oMArcGdYV0JuqSk",
+  authDomain: "elearning-568mbq.firebaseapp.com",
+  projectId: "elearning-568mbq",
+  storageBucket: "elearning-568mbq.appspot.com",
+  messagingSenderId: "956581108104",
+  appId: "1:956581108104:web:2be9a9b0c5978cd4b3823d",
+  measurementId: "G-WLB4FBXE9R"
 };
 
 // Replace with your cloud functions location
