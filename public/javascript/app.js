@@ -1,5 +1,6 @@
 const prices = {};
-<script async src="https://js.stripe.com/v3/pricing-table.js"></script><stripe-pricing-table pricing-table-id="prctbl_1PcOT2GEgi3nW4gCiFz9tZ6j"publishable-key="pk_test_51PWb5xGEgi3nW4gCirP8VgoQyLdUOj7dcai0ywOnaTGEKLOVohoodJH7iVKPso6z94PoDuk6xvclvAGgpPIolJaT00uUJ1YeMq">
+<script async src="https://js.stripe.com/v3/pricing-table.js"></script>
+  <stripe-pricing-table pricing-table-id="prctbl_1PcOT2GEgi3nW4gCiFz9tZ6j"publishable-key="pk_test_51PWb5xGEgi3nW4gCirP8VgoQyLdUOj7dcai0ywOnaTGEKLOVohoodJH7iVKPso6z94PoDuk6xvclvAGgpPIolJaT00uUJ1YeMq">
   </stripe-pricing-table>
 // Replace with your Firebase project config.
 const firebaseConfig = {
