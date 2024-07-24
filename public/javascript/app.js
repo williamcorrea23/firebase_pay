@@ -1,5 +1,4 @@
 const prices = {};
-async src="https://js.stripe.com/v3/pricing-table.js"
 
 // Replace with your Firebase project config.
 const firebaseConfig = {
