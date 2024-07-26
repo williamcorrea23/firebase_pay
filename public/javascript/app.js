@@ -63,9 +63,9 @@ firebase.auth().onAuthStateChanged((firebaseUser) => {
  */
 function startDataListeners() {
   // Get all our products and render them to the page
-  const products = document.querySelector('.products');
+  const products = document.querySelector('.productos');
   const template = document.querySelector('#product');
-  db.collection('products')
+  db.collection('productos')
     .where('active', '==', true)
     .get()
     .then(function (querySnapshot) {
