@@ -96,5 +96,5 @@ document.getElementById('login-form').addEventListener('submit', (e) => {
 
 document.getElementById('logout-button').addEventListener('click', logout);
 
-// Initial UI update
-updateUI(null);
+// Initial UI update updateUI(null);
+
