@@ -212,5 +212,5 @@ onAuthStateChanged(auth, (user) => {
   }
 });
 
-// Executar a função principal
-main();
+// Executar a função principal main();
+
