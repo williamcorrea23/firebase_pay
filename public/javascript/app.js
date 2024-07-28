@@ -6,19 +6,7 @@ import {
   signOut,
   onAuthStateChanged 
 } from 'firebase/auth';
-import { 
-  getFirestore, 
-  collection, 
-  doc,
-  addDoc,
-  getDoc,
-  getDocs,
-  updateDoc,
-  deleteDoc,
-  query, 
-  where,
-  runTransaction
-} from 'firebase/firestore';
+import { getFirestore } from 'firebase/firestore';
 
 const firebaseConfig = {
   apiKey: "AIzaSyDwNC4QWaBQYqvayl98oMArcGdYV0JuqSk",
@@ -30,187 +18,83 @@ const firebaseConfig = {
   measurementId: "G-WLB4FBXE9R"
 };
 
+// Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-// Melhorada a função de tratamento de erro para incluir logs e lançar um erro personalizado
-function handleError(error, customMessage) {
-  console.error(`${customMessage}: ${error.message}`);
-  // Loga o erro completo para debugging
-  console.error(error);
-  // Lança um erro personalizado para melhor tratamento upstream
-  throw new Error(`${customMessage}: ${error.message}`);
-}
+// State variables
+let currentUser = null;
+let isLoading = true;
 
-// Funções de Autenticação
-async function registerUser(email, password) {
-  try {
-    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-    console.log('Usuário registrado com sucesso:', userCredential.user.uid);
-    return userCredential.user;
-  } catch (error) {
-    handleError(error, 'Erro ao registrar usuário');
-  }
-}
+// Function to update UI based on auth state
+function updateUI(user) {
+  const loader = document.getElementById('loader');
+  const mainContent = document.getElementById('main-content');
+  const loginForm = document.getElementById('login-form');
 
-async function loginUser(email, password) {
-  try {
-    const userCredential = await signInWithEmailAndPassword(auth, email, password);
-    console.log('Usuário logado com sucesso:', userCredential.user.uid);
-    return userCredential.user;
-  } catch (error) {
-    handleError(error, 'Erro ao fazer login');
-  }
-}
-
-async function logoutUser() {
-  try {
-    await signOut(auth);
-    console.log('Usuário deslogado com sucesso');
-  } catch (error) {
-    handleError(error, 'Erro ao fazer logout');
-  }
-}
-
-// Funções CRUD para Produtos
-async function addProduct(productData) {
-  try {
-    // Validação básica dos dados do produto
-    if (!productData.name || !productData.price) {
-      throw new Error('Nome e preço do produto são obrigatórios');
-    }
-    const docRef = await addDoc(collection(db, 'Productos'), {
-      ...productData,
-      createdAt: new Date(),
-      updatedAt: new Date()
-    });
-    console.log('Produto adicionado com ID:', docRef.id);
-    return docRef.id;
-  } catch (error) {
-    handleError(error, 'Erro ao adicionar produto');
-  }
-}
-
-async function getProduct(productId) {
-  try {
-    const docRef = doc(db, 'Productos', productId);
-    const docSnap = await getDoc(docRef);
-    if (docSnap.exists()) {
-      return { id: docSnap.id, ...docSnap.data() };
-    } else {
-      console.log('Produto não encontrado');
-      return null;
-    }
-  } catch (error) {
-    handleError(error, 'Erro ao buscar produto');
-  }
-}
-
-async function updateProduct(productId, updateData) {
-  try {
-    const docRef = doc(db, 'Productos', productId);
-    // Usa uma transação para garantir a atomicidade da operação
-    await runTransaction(db, async (transaction) => {
-      const docSnap = await transaction.get(docRef);
-      if (!docSnap.exists()) {
-        throw new Error('O produto não existe');
-      }
-      transaction.update(docRef, {
-        ...updateData,
-        updatedAt: new Date()
-      });
-    });
-    console.log('Produto atualizado com sucesso');
-  } catch (error) {
-    handleError(error, 'Erro ao atualizar produto');
-  }
-}
-
-async function deleteProduct(productId) {
-  try {
-    const docRef = doc(db, 'Productos', productId);
-    await deleteDoc(docRef);
-    console.log('Produto deletado com sucesso');
-  } catch (error) {
-    handleError(error, 'Erro ao deletar produto');
-  }
-}
-
-async function getAllProducts() {
-  try {
-    const querySnapshot = await getDocs(collection(db, 'Productos'));
-    return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-  } catch (error) {
-    handleError(error, 'Erro ao buscar todos os produtos');
-  }
-}
-
-async function getActiveProducts() {
-  try {
-    const q = query(collection(db, 'Productos'), where("active", "==", true));
-    const querySnapshot = await getDocs(q);
-    return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-  } catch (error) {
-    handleError(error, 'Erro ao buscar produtos ativos');
-  }
-}
-
-// Função principal para demonstração
-async function main() {
-  try {
-    // Registro de usuário
-    const newUser = await registerUser('novousuario@example.com', 'senhaSegura123');
-    if (!newUser) throw new Error('Falha ao registrar usuário');
-
-    // Login
-    const loggedUser = await loginUser('novousuario@example.com', 'senhaSegura123');
-    if (!loggedUser) throw new Error('Falha ao fazer login');
-
-    // Adicionar um produto
-    const newProductId = await addProduct({
-      name: 'Novo Produto',
-      description: 'Descrição do novo produto',
-      price: 99.99,
-      active: true
-    });
-    if (!newProductId) throw new Error('Falha ao adicionar produto');
-
-    // Buscar o produto adicionado
-    const product = await getProduct(newProductId);
-    if (!product) throw new Error('Produto não encontrado');
-    console.log('Produto buscado:', product);
-
-    // Atualizar o produto
-    await updateProduct(newProductId, { price: 89.99 });
-
-    // Buscar todos os produtos
-    const allProducts = await getAllProducts();
-    console.log('Todos os produtos:', allProducts);
-
-    // Buscar produtos ativos
-    const activeProducts = await getActiveProducts();
-    console.log('Produtos ativos:', activeProducts);
-
-    // Deletar o produto
-    await deleteProduct(newProductId);
-
-    // Logout
-    await logoutUser();
-
-  } catch (error) {
-    console.error('Erro na execução principal:', error.message);
-  }
-}
-
-// Listener para mudanças no estado de autenticação
-onAuthStateChanged(auth, (user) => {
-  if (user) {
-    console.log('Usuário está logado:', user.uid);
+  if (isLoading) {
+    loader.style.display = 'block';
+    mainContent.style.display = 'none';
+    loginForm.style.display = 'none';
+  } else if (user) {
+    loader.style.display = 'none';
+    mainContent.style.display = 'block';
+    loginForm.style.display = 'none';
+    // Here you can populate the main content with user-specific data
   } else {
-    console.log('Usuário não está logado');
+    loader.style.display = 'none';
+    mainContent.style.display = 'none';
+    loginForm.style.display = 'block';
+  }
+}
+
+// Authentication state observer
+onAuthStateChanged(auth, (user) => {
+  isLoading = false;
+  currentUser = user;
+  updateUI(user);
+  if (user) {
+    console.log('User is signed in:', user.uid);
+    // Here you can start loading user-specific data
+  } else {
+    console.log('No user is signed in.');
   }
 });
 
-// Executar a função principal main();
+// Login function
+async function login(email, password) {
+  try {
+    isLoading = true;
+    updateUI(null);
+    await signInWithEmailAndPassword(auth, email, password);
+  } catch (error) {
+    console.error('Error logging in:', error);
+    isLoading = false;
+    updateUI(null);
+    // Here you should show an error message to the user
+  }
+}
 
+// Logout function
+async function logout() {
+  try {
+    await signOut(auth);
+  } catch (error) {
+    console.error('Error logging out:', error);
+    // Here you should show an error message to the user
+  }
+}
+
+// Event listeners
+document.getElementById('login-form').addEventListener('submit', (e) => {
+  e.preventDefault();
+  const email = document.getElementById('email').value;
+  const password = document.getElementById('password').value;
+  login(email, password);
+});
+
+document.getElementById('logout-button').addEventListener('click', logout);
+
+// Initial UI update
+updateUI(null);
